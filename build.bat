@@ -23,7 +23,7 @@ if not defined DevEnvDir (call %VCVARSALLPATH%)
 
 REM =============================================
 
-set EXENAME=routes
+set EXENAME=myapp
 
 REM Collect all source files
 setlocal enableextensions enabledelayedexpansion
