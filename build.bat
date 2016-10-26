@@ -48,10 +48,10 @@ if not defined BUILD_TYPE (
 
 set BUILDDIRNAME=build
 
-if BUILD_TYPE EQU dll (
+if %BUILD_TYPE% EQU dll (
     set COMPILER_ARGS=%COMPILER_ARGS% /LD
     set BUILDDIRNAME=lib
-) else if BUILD_TYPE EQU lib (
+) else if %BUILD_TYPE% EQU lib (
     set BUILDDIRNAME=lib
 )
 
