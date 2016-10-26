@@ -23,6 +23,29 @@ legacy_stdio_definitions.lib
 
 set COMPILER_ARGS= /D "_UNICODE" /D "UNICODE" /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /EHsc /MT /WX- /Zc:forScope /Gd /Oy- /Oi /Gm- /O2 /nologo
 
+setlocal enableextensions enabledelayedexpansion
+
+REM Parsing command line arguments
+set ARG_COUNT=0
+for %%x in (%*) do (
+    set /A ARG_COUNT+=1
+    set "ARGS[!ARG_COUNT!]=%%~x"
+)
+
+for /L %%i in (1,1,%ARG_COUNT%) do (
+    if !ARGS[%%i]! EQU exe (
+        set BUILD_TYPE=exe
+    ) else if !ARGS[%%i]! EQU lib (
+        set BUILD_TYPE=lib
+    ) else if !ARGS[%%i]! EQU dll (
+        set BUILD_TYPE=dll
+    )
+)
+
+if not defined BUILD_TYPE (
+    set BUILD_TYPE=exe
+)
+
 REM Searching for a toolset. Preferring the newest
 
 if defined VS140COMNTOOLS (
@@ -47,7 +70,6 @@ if not defined DevEnvDir (call %VCVARSALLPATH%)
 REM =============================================
 
 REM Collect all source files
-setlocal enableextensions enabledelayedexpansion
 set SOURCES=
 for /F %%A in ('dir /b /S *.cpp *.res') do set SOURCES=!SOURCES! "%%A"
 
