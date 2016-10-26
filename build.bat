@@ -46,6 +46,15 @@ if not defined BUILD_TYPE (
     set BUILD_TYPE=exe
 )
 
+set BUILDDIRNAME=build
+
+if BUILD_TYPE EQU dll (
+    set COMPILER_ARGS=%COMPILER_ARGS% /LD
+    set BUILDDIRNAME=lib
+) else if BUILD_TYPE EQU lib (
+    set BUILDDIRNAME=lib
+)
+
 REM Searching for a toolset. Preferring the newest
 
 if defined VS140COMNTOOLS (
@@ -75,29 +84,54 @@ for /F %%A in ('dir /b /S *.cpp *.res') do set SOURCES=!SOURCES! "%%A"
 
 if exist build.txt (
     set /p BUILDINDEX=<build.txt
-    set BUILDDIR=build\!BUILDINDEX!
+    set BUILDDIR=%BUILDDIRNAME%\!BUILDINDEX!
 ) else (
-    set BUILDDIR=build
+    set BUILDDIR=%BUILDDIRNAME%
 )
 
 
 mkdir %BUILDDIR%
 mkdir obj
 pushd obj
-cl %INCLUDE_PATHS% ^
+
+REM Compile
+cl /c %INCLUDE_PATHS% ^
 %COMPILER_ARGS% ^
-%SOURCES% ^
-/link ^
-/OUT:"..\%BUILDDIR%\%EXENAME%.exe" ^
-%LIBRARIES% ^
-/MACHINE:X86 ^
-/OPT:REF ^
-/SAFESEH ^
-/OPT:ICF ^
-/ERRORREPORT:PROMPT ^
-/NOLOGO ^
-%LIB_PATHS% ^
-/TLBID:1
+%SOURCES%
+
+REM Collect all obj files
+set OBJS=
+for /F %%A in ('dir /b /S *.obj') do set OBJS=!OBJS! "%%A"
+
+if %BUILD_TYPE% EQU exe (
+    link /OUT:"..\%BUILDDIR%\%EXENAME%.exe" ^
+    %OBJS% ^
+    %LIBRARIES% ^
+    /MACHINE:X86 ^
+    /OPT:REF ^
+    /SAFESEH ^
+    /OPT:ICF ^
+    /ERRORREPORT:PROMPT ^
+    /NOLOGO ^
+    %LIB_PATHS% ^
+    /TLBID:1 ^
+    /LTCG
+) else if %BUILD_TYPE% EQU lib (
+    lib /OUT:..\%BUILDDIR%\%EXENAME%.lib %OBJS% /LTCG
+) else if %BUILD_TYPE% EQU dll (
+    link /DLL /OUT:"..\%BUILDDIR%\%EXENAME%.dll" ^
+    %OBJS% ^
+    %LIBRARIES% ^
+    /MACHINE:X86 ^
+    /OPT:REF ^
+    /SAFESEH ^
+    /OPT:ICF ^
+    /ERRORREPORT:PROMPT ^
+    /NOLOGO ^
+    %LIB_PATHS% ^
+    /TLBID:1 ^
+    /LTCG
+)
 
 if exist ..\build.txt (
     if %ERRORLEVEL% EQU 0 (
