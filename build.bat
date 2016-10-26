@@ -1,5 +1,28 @@
 @echo off
 
+REM What's your project name?
+set EXENAME=myapp
+
+set INCLUDE_PATHS=
+set LIB_PATHS= 
+set LIBRARIES=kernel32.lib ^
+user32.lib ^
+gdi32.lib ^
+winspool.lib ^
+comdlg32.lib ^
+advapi32.lib ^
+shell32.lib ^
+ole32.lib ^
+oleaut32.lib ^
+uuid.lib ^
+odbc32.lib ^
+odbccp32.lib ^
+winmm.lib ^
+Shlwapi.lib ^
+legacy_stdio_definitions.lib
+
+set COMPILER_ARGS= /D "_UNICODE" /D "UNICODE" /GS /GL /analyze- /W3 /Gy /Zc:wchar_t /EHsc /MT /WX- /Zc:forScope /Gd /Oy- /Oi /Gm- /O2 /nologo
+
 REM Searching for a toolset. Preferring the newest
 
 if defined VS140COMNTOOLS (
@@ -23,30 +46,10 @@ if not defined DevEnvDir (call %VCVARSALLPATH%)
 
 REM =============================================
 
-set EXENAME=myapp
-
 REM Collect all source files
 setlocal enableextensions enabledelayedexpansion
 set SOURCES=
 for /F %%A in ('dir /b /S *.cpp *.res') do set SOURCES=!SOURCES! "%%A"
-
-set INCLUDE_PATHS=
-set LIB_PATHS= 
-set LIBRARIES=kernel32.lib ^
-user32.lib ^
-gdi32.lib ^
-winspool.lib ^
-comdlg32.lib ^
-advapi32.lib ^
-shell32.lib ^
-ole32.lib ^
-oleaut32.lib ^
-uuid.lib ^
-odbc32.lib ^
-odbccp32.lib ^
-winmm.lib ^
-Shlwapi.lib ^
-legacy_stdio_definitions.lib
 
 if exist build.txt (
     set /p BUILDINDEX=<build.txt
@@ -60,24 +63,7 @@ mkdir %BUILDDIR%
 mkdir obj
 pushd obj
 cl %INCLUDE_PATHS% ^
-/D "_UNICODE" ^
-/D "UNICODE" ^
-/GS ^
-/GL ^
-/analyze- ^
-/W3 ^
-/Gy ^
-/Zc:wchar_t ^
-/EHsc ^
-/MT ^
-/WX- ^
-/Zc:forScope ^
-/Gd ^
-/Oy- ^
-/Oi ^
-/Gm- ^
-/O2 ^
-/nologo ^
+%COMPILER_ARGS% ^
 %SOURCES% ^
 /link ^
 /OUT:"..\%BUILDDIR%\%EXENAME%.exe" ^
