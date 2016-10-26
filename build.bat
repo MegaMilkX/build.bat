@@ -1,5 +1,27 @@
 @echo off
-if not defined DevEnvDir (call "%VS140COMNTOOLS%..\..\VC\vcvarsall")
+
+REM Searching for a toolset. Preferring the newest
+
+if defined VS140COMNTOOLS (
+    set VCVARSALLPATH= "%VS140COMNTOOLS%..\..\VC\vcvarsall"
+) else if defined VS120COMNTOOLS (
+    set VCVARSALLPATH= "%VS120COMNTOOLS%..\..\VC\vcvarsall"
+) else if defined VS110COMNTOOLS (
+    set VCVARSALLPATH= "%VS110COMNTOOLS%..\..\VC\vcvarsall"
+) else if defined VS100COMNTOOLS (
+    set VCVARSALLPATH= "%VS100COMNTOOLS%..\..\VC\vcvarsall"
+) else if defined VS90COMNTOOLS (
+    set VCVARSALLPATH= "%VS90COMNTOOLS%..\..\VC\vcvarsall"
+)
+
+if not defined VCVARSALLPATH (
+    echo No build system been found, abort.
+    exit /b 1
+)
+
+if not defined DevEnvDir (call %VCVARSALLPATH%)
+
+REM =============================================
 
 set EXENAME=routes
 
