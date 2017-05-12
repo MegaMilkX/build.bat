@@ -39,11 +39,22 @@ for /L %%i in (1,1,%ARG_COUNT%) do (
         set BUILD_TYPE=lib
     ) else if !ARGS[%%i]! EQU dll (
         set BUILD_TYPE=dll
+    ) else if !ARGS[%%i]! EQU x86 (
+        set "ARCHITECTURE="
+        set "LINKARCH=X86"
+    ) else if !ARGS[%%i]! EQU x64 (
+        set "ARCHITECTURE=amd64"
+        set "LINKARCH=X64"
     )
 )
 
 if not defined BUILD_TYPE (
     set BUILD_TYPE=exe
+)
+
+if not defined ARCHITECTURE (
+    set "ARCHITECTURE="
+    set "LINKARCH=X86"
 )
 
 set BUILDDIRNAME=build
@@ -74,7 +85,7 @@ if not defined VCVARSALLPATH (
     exit /b 1
 )
 
-if not defined DevEnvDir (call %VCVARSALLPATH%)
+if not defined DevEnvDir (call %VCVARSALLPATH% %ARCHITECTURE%)
 
 REM =============================================
 
@@ -108,9 +119,8 @@ if %BUILD_TYPE% EQU exe (
     link /OUT:"..\%BUILDDIR%\%EXENAME%.exe" ^
     %OBJS% ^
     %LIBRARIES% ^
-    /MACHINE:X86 ^
+    /MACHINE:%LINKARCH% ^
     /OPT:REF ^
-    /SAFESEH ^
     /OPT:ICF ^
     /ERRORREPORT:PROMPT ^
     /NOLOGO ^
@@ -123,9 +133,8 @@ if %BUILD_TYPE% EQU exe (
     link /DLL /OUT:"..\%BUILDDIR%\%EXENAME%.dll" ^
     %OBJS% ^
     %LIBRARIES% ^
-    /MACHINE:X86 ^
+    /MACHINE:%LINKARCH% ^
     /OPT:REF ^
-    /SAFESEH ^
     /OPT:ICF ^
     /ERRORREPORT:PROMPT ^
     /NOLOGO ^
